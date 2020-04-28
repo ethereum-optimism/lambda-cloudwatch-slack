@@ -54,7 +54,8 @@ var handleCloudWatch = function(log, context) {
     title = "Error in Logs"
   }
 
-  let link = `https://${process.env.AWS_REGION}.console.aws.amazon.com/cloudwatch/home?region=${process.env.AWS_REGION}#logEventViewer:group=${log.logGroup};stream=${log.logStream}`
+  let timestampUTCString = new Date(timestamp).toISOString()
+  let link = `https://${process.env.AWS_REGION}.console.aws.amazon.com/cloudwatch/home?region=${process.env.AWS_REGION}#logEventViewer:group=${log.logGroup};stream=${log.logStream};start=${timestampUTCString}`
 
   var slackMessage = {
     text: `*${header}*`,
