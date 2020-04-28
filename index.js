@@ -42,16 +42,26 @@ var postMessage = function(message, callback) {
 var handleCloudWatch = function(log, context) {
   var timestamp = log.logEvents[0].timestamp;
   var message = log.logEvents[0].message;
-  var logGroupAndStream = `Group: ${log.logGroup}, Stream: ${log.logStream}`
+  var logGroupAndStream = `Group: \`${log.logGroup}\`, Stream: \`${log.logStream}\``
   var color = "danger";
 
+  let header
+  let title
+  if (message.indexOf("env DEBUG=") > -1) {
+    header = "Process restart"
+    title = "Log level"
+  } else {
+    header = "ERROR"
+    title = "Error in Logs"
+  }
+
   var slackMessage = {
-    text: "*ERROR*",
+    text: `*${header}*`,
     attachments: [
       {
         "color": color,
         "fields": [
-          { "title": "Error in logs", "value": logGroupAndStream, "short": false},
+          { "title": title, "value": logGroupAndStream, "short": false},
           { "title": "Message", "value": message, "short": false }
         ],
         "ts":  timestamp
