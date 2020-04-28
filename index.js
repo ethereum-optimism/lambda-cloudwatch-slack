@@ -2,14 +2,13 @@ var zlib = require('zlib');
 var AWS = require('aws-sdk');
 var url = require('url');
 var https = require('https');
-var config = require('./config');
 var _ = require('lodash');
 
 var baseSlackMessage = {}
 
 var postMessage = function(message, callback) {
   var body = JSON.stringify(message);
-  var options = url.parse(config.unencryptedHookUrl);
+  var options = url.parse(process.env.UNENCRYPTED_HOOK_URL);
   options.method = 'POST';
   options.headers = {
     'Content-Type': 'application/json',
@@ -55,6 +54,8 @@ var handleCloudWatch = function(log, context) {
     title = "Error in Logs"
   }
 
+  let link = `https://${process.env.AWS_REGION}.console.aws.amazon.com/cloudwatch/home?region=${process.env.AWS_REGION}#logEventViewer:group=${log.logGroup};stream=${log.logStream}`
+
   var slackMessage = {
     text: `*${header}*`,
     attachments: [
@@ -62,7 +63,8 @@ var handleCloudWatch = function(log, context) {
         "color": color,
         "fields": [
           { "title": title, "value": logGroupAndStream, "short": false},
-          { "title": "Message", "value": message, "short": false }
+          { "title": "Message", "value": message, "short": false },
+          { "title": "Link to logs", "value": link, "short": true}
         ],
         "ts":  timestamp
       }
