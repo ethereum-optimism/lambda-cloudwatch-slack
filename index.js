@@ -44,6 +44,11 @@ var handleCloudWatch = function(log, context) {
   var logGroupAndStream = `Group: \`${log.logGroup}\`, Stream: \`${log.logStream}\``
   var color = "danger";
 
+  if (log.logStream && log.logStream.startsWith('l2-read-only-node/read-only-node/')) {
+    // Hack to prevent read-only node alerts from blowing up the logs
+    return undefined;
+  }
+
   let header
   let title
   if (message.indexOf("env DEBUG=") > -1) {
@@ -82,6 +87,11 @@ exports.handler = function(event, context) {
   var slackMessage = null;
 
   slackMessage = handleCloudWatch(log, context);
+
+  if (!slackMessage) {
+    context.succeed();
+    return;
+  }
 
   postMessage(slackMessage, function(response) {
     if (response.statusCode < 400) {
