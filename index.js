@@ -38,20 +38,26 @@ var postMessage = function(message, callback) {
   postReq.end();
 };
 
+var matchesIgnorePattern = function(message) {
+  return message.indexOf("VM returned with error") > -1;
+}
+
+var isRestart = function(message) {
+  return message.indexOf("Waiting for Postgres server") > -1 || message.indexOf("Starting Geth...") > -1;
+}
+
 var handleCloudWatch = function(log, context) {
   var timestamp = log.logEvents[0].timestamp;
   var message = log.logEvents[0].message;
   var logGroupAndStream = `Group: \`${log.logGroup}\`, Stream: \`${log.logStream}\``
   var color = "danger";
 
-  if (log.logStream && log.logStream.startsWith('l2-read-only-node/read-only-node/')) {
-    // Hack to prevent read-only node alerts from blowing up the logs
+  if (matchesIgnorePattern(message)) {
     return undefined;
   }
 
-  let header
   let title
-  if (message.indexOf("env DEBUG=") > -1) {
+  if (isRestart(message)) {
     header = "Process restart"
     title = "Log level"
   } else {
