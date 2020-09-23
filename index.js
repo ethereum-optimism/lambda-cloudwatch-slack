@@ -43,7 +43,7 @@ var matchesIgnorePattern = function(message) {
 }
 
 var isRestart = function(message) {
-  return message.indexOf("Waiting for Postgres server") > -1 || message.indexOf("Starting Geth...") > -1;
+  return message.indexOf("Continuing with startup...") > -1 || message.indexOf("Starting Geth...") > -1;
 }
 
 var handleCloudWatch = function(log, context) {
